@@ -118,11 +118,53 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
-              className="w-full rounded-full border-gray-200 bg-gray-50/50 hover:bg-gray-100/50"
+              className="w-full truncate rounded-full border-gray-200 bg-gray-50/50 hover:bg-gray-100/50"
               disabled={isLoading}
+              style={{ overflow: 'hidden', background: 'white', paddingLeft: 0, paddingRight: 0 }}
             >
-              <Upload className="w-4 h-4 mr-2" />
+              <span
+              className="relative flex items-center justify-center mr-2"
+              style={{ minWidth: '1.5rem', minHeight: '1.5rem' }}
+              >
+              <span
+                className="absolute inset-0 rounded-full"
+                style={{
+                background: 'white',
+                zIndex: 1,
+                width: '1.5rem',
+                height: '1.5rem',
+                boxShadow: '0 0 0 2px #fff',
+                }}
+              />
+              <Upload className="w-4 h-4 relative z-10 text-gray-900" />
+              </span>
+              <span
+              className="inline-block"
+              style={{
+                display: 'inline-block',
+                whiteSpace: 'nowrap',
+                animation: trackName
+                ? 'scroll-text 8s linear infinite'
+                : undefined,
+                minWidth: 0,
+                maxWidth: '100%',
+                background: 'white',
+                paddingLeft: '0.5rem',
+                paddingRight: '0.5rem',
+              }}
+              >
               {trackName || 'Choose Audio File'}
+              </span>
+              <style>
+              {`
+                @keyframes scroll-text {
+                0% { transform: translateX(0%); }
+                10% { transform: translateX(0%); }
+                90% { transform: translateX(calc(-100% + 100px)); }
+                100% { transform: translateX(calc(-100% + 100px)); }
+                }
+              `}
+              </style>
             </Button>
           </div>
 

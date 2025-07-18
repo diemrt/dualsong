@@ -30,28 +30,6 @@ function App() {
             <TrackPlayer trackNumber={2} trackColor="bg-gradient-to-br from-orange-500 via-red-500 to-pink-500" />
           </div>
 
-          {/* Instructions */}
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
-            <h3 className="text-lg font-semibold mb-3 text-gray-900">How to Use</h3>
-            <div className="space-y-2 text-sm text-gray-600">
-              <div className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></div>
-                <span>Choose URL or file upload for each track</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></div>
-                <span>Enter YouTube URLs or direct audio links</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></div>
-                <span>Upload local audio files (MP3, WAV, etc.)</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-gray-400 mt-2 flex-shrink-0"></div>
-                <span>Control volume and playback independently</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
