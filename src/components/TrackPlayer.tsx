@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Volume2, Upload, Link, SkipBack, SkipForward, MoreHorizontal } from 'lucide-react';
+import { Play, Pause, Volume2, Upload, Link, SkipBack, SkipForward } from 'lucide-react';
 
 interface TrackPlayerProps {
   trackNumber: number;
@@ -153,9 +153,6 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
                 <Upload className="w-4 h-4" />
               </Button>
             </div>
-            <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
           </div>
 
           {/* Input Section */}

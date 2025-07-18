@@ -1,20 +1,16 @@
 import TrackPlayer from './components/TrackPlayer';
-import { Music, ArrowLeft, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Music } from 'lucide-react';
 
 function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-white">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-200/50">
-        <div className="flex items-center justify-between p-4 max-w-md mx-auto">
-          <Button variant="ghost" size="sm" className="rounded-full h-10 w-10 p-0">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-lg font-semibold text-gray-900">Dual Player</h1>
-          <Button variant="ghost" size="sm" className="rounded-full h-10 w-10 p-0">
-            <Search className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center justify-center p-4 max-w-md mx-auto">
+          <h1 className="text-lg text-center font-bold text-gray-900">Dual Player</h1>
+          <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-sm uppercase tracking-wide">
+            Beta
+          </span>
         </div>
       </div>
 
