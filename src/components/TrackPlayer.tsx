@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Volume2, Upload, Link, SkipBack, SkipForward } from 'lucide-react';
+import { Play, Pause, Volume2, Upload, SkipBack, SkipForward } from 'lucide-react';
 
 interface TrackPlayerProps {
   trackNumber: number;
@@ -15,12 +14,11 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(70);
-  const [trackUrl, setTrackUrl] = useState('');
   const [trackName, setTrackName] = useState('');
   const [artistName, setArtistName] = useState('Unknown Artist');
-  const [inputType, setInputType] = useState<'url' | 'file'>('url');
   const [isLoading, setIsLoading] = useState(false);
   const [showVolumeControl, setShowVolumeControl] = useState(false);
+  const [hasTrack, setHasTrack] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -83,52 +81,16 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
     const file = event.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      setTrackUrl(url);
       setTrackName(file.name.replace(/\.[^/.]+$/, ""));
       setArtistName('Local File');
       setIsLoading(true);
+      setHasTrack(true);
       
       if (audioRef.current) {
         audioRef.current.src = url;
         audioRef.current.load();
         audioRef.current.onloadeddata = () => setIsLoading(false);
       }
-    }
-  };
-
-  const handleUrlSubmit = () => {
-    if (!trackUrl.trim()) return;
-    
-    setIsLoading(true);
-    
-    // Extract YouTube video ID and create a proxy URL
-    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.{11})/;
-    const match = trackUrl.match(youtubeRegex);
-    
-    if (match) {
-      // For demo purposes, we'll use a placeholder audio URL
-      // In production, you'd need a YouTube to audio conversion service
-      setTrackName(`YouTube Track ${match[1]}`);
-      setArtistName('YouTube');
-      alert('YouTube integration requires a backend service. For demo, please use a direct audio URL (.mp3, .wav, etc.)');
-      setIsLoading(false);
-      return;
-    }
-    
-    // Handle direct audio URLs
-    if (audioRef.current) {
-      audioRef.current.src = trackUrl;
-      audioRef.current.load();
-      audioRef.current.onloadeddata = () => {
-        setIsLoading(false);
-        const fileName = trackUrl.split('/').pop() || `Track ${trackNumber}`;
-        setTrackName(fileName.replace(/\.[^/.]+$/, ""));
-        setArtistName('Web Audio');
-      };
-      audioRef.current.onerror = () => {
-        setIsLoading(false);
-        alert('Failed to load audio. Please check the URL.');
-      };
     }
   };
 
@@ -144,66 +106,24 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
     <div className="w-full max-w-sm mx-auto">
       <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl overflow-hidden">
         <CardContent className="p-0">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 pb-4">
-            <div className="flex gap-3">
-              <Button
-                variant={inputType === 'url' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setInputType('url')}
-                className="rounded-full h-8 w-8 p-0"
-              >
-                <Link className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={inputType === 'file' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setInputType('file')}
-                className="rounded-full h-8 w-8 p-0"
-              >
-                <Upload className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
           {/* Input Section */}
-          <div className="px-6 pb-4">
-            {inputType === 'url' ? (
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter YouTube URL or audio link"
-                  value={trackUrl}
-                  onChange={(e) => setTrackUrl(e.target.value)}
-                  className="flex-1 rounded-full border-gray-200 bg-gray-50/50"
-                />
-                <Button 
-                  onClick={handleUrlSubmit} 
-                  disabled={isLoading}
-                  className="rounded-full px-6"
-                >
-                  Load
-                </Button>
-              </div>
-            ) : (
-              <div>
-                <input
-                  type="file"
-                  accept="audio/*"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  variant="outline"
-                  className="w-full rounded-full border-gray-200 bg-gray-50/50 hover:bg-gray-100/50"
-                  disabled={isLoading}
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  {trackName || 'Choose Audio File'}
-                </Button>
-              </div>
-            )}
+          <div className="px-6 pt-6 pb-4">
+            <input
+              type="file"
+              accept="audio/*"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              className="w-full rounded-full border-gray-200 bg-gray-50/50 hover:bg-gray-100/50"
+              disabled={isLoading}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              {trackName || 'Choose Audio File'}
+            </Button>
           </div>
 
           {/* Album Art */}
@@ -263,7 +183,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
                 size="sm" 
                 className="rounded-full h-12 w-12 p-0 hover:bg-gray-100"
                 onClick={handleSkipBack}
-                disabled={!trackUrl || isLoading}
+                disabled={!hasTrack || isLoading}
               >
                 <SkipBack className="w-5 h-5" />
               </Button>
@@ -272,7 +192,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
                 onClick={togglePlayPause}
                 size="lg"
                 className="rounded-full h-16 w-16 p-0 bg-gray-900 hover:bg-gray-800 shadow-lg"
-                disabled={!trackUrl || isLoading}
+                disabled={!hasTrack || isLoading}
               >
                 {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
               </Button>
@@ -282,7 +202,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
                 size="sm" 
                 className="rounded-full h-12 w-12 p-0 hover:bg-gray-100"
                 onClick={handleSkipForward}
-                disabled={!trackUrl || isLoading}
+                disabled={!hasTrack || isLoading}
               >
                 <SkipForward className="w-5 h-5" />
               </Button>
