@@ -1,0 +1,46 @@
+/* iOS-specific fixes */
+
+/* Disable iOS zoom on input focus */
+input[type="file"] {
+  font-size: 16px;
+}
+
+/* Improve touch targets for iOS */
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* iOS Safari file input fixes */
+input[type="file"]::-webkit-file-upload-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Prevent iOS Safari from auto-zooming on small text */
+* {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* iOS audio element fixes */
+audio {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+/* Improve button responsiveness on iOS */
+.touch-manipulation {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Prevent iOS Safari from highlighting elements */
+.no-highlight {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}

@@ -54,7 +54,23 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play();
+      // iOS requires user interaction for audio playback
+      const playPromise = audioRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // Audio started successfully
+            console.log('Audio playback started');
+          })
+          .catch((error) => {
+            console.error('Audio playback failed:', error);
+            // Handle autoplay policy restrictions
+            if (error.name === 'NotAllowedError') {
+              alert('Il browser ha bloccato la riproduzione automatica. Premi play per avviare l\'audio.');
+            }
+          });
+      }
     }
     setIsPlaying(!isPlaying);
   };
@@ -80,6 +96,16 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check if file type is supported
+      const supportedTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/m4a', 'audio/aac', 'audio/ogg', 'audio/flac'];
+      const isSupported = supportedTypes.some(type => file.type.includes(type.split('/')[1])) || 
+                          file.name.match(/\.(mp3|wav|m4a|aac|ogg|flac)$/i);
+      
+      if (!isSupported) {
+        alert('Formato file non supportato. Usa MP3, WAV, M4A, AAC, OGG o FLAC.');
+        return;
+      }
+
       const url = URL.createObjectURL(file);
       setTrackName(file.name.replace(/\.[^/.]+$/, ""));
       setArtistName('Local File');
@@ -87,10 +113,30 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
       setHasTrack(true);
       
       if (audioRef.current) {
+        // Stop current audio if playing
+        if (isPlaying) {
+          audioRef.current.pause();
+          setIsPlaying(false);
+        }
+        
         audioRef.current.src = url;
         audioRef.current.load();
-        audioRef.current.onloadeddata = () => setIsLoading(false);
+        
+        // Enhanced loading handlers for iOS
+        audioRef.current.onloadeddata = () => {
+          setIsLoading(false);
+          console.log('Audio loaded successfully');
+        };
+        
+        audioRef.current.onerror = (e) => {
+          console.error('Audio loading error:', e);
+          setIsLoading(false);
+          alert('Errore nel caricamento del file audio');
+        };
       }
+      
+      // Reset file input for iOS compatibility
+      event.target.value = '';
     }
   };
 
@@ -110,17 +156,24 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
           <div className="px-6 pt-6 pb-4">
             <input
               type="file"
-              accept="audio/*"
+              accept="audio/mpeg,audio/wav,audio/mp3,audio/m4a,audio/aac,audio/ogg,audio/flac,.mp3,.wav,.m4a,.aac,.ogg,.flac"
               ref={fileInputRef}
               onChange={handleFileUpload}
               className="hidden"
+              capture={false}
             />
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
-              className="w-full truncate rounded-full border-gray-200 bg-gray-50/50 hover:bg-gray-100/50"
+              className="w-full truncate rounded-full border-gray-200 bg-gray-50/50 hover:bg-gray-100/50 touch-manipulation"
               disabled={isLoading}
-              style={{ overflow: 'hidden', background: 'white', paddingLeft: 0, paddingRight: 0 }}
+              style={{ 
+                overflow: 'hidden', 
+                background: 'white', 
+                paddingLeft: 0, 
+                paddingRight: 0,
+                WebkitTapHighlightColor: 'transparent'
+              }}
             >
               <span
               className="relative flex items-center justify-center mr-2"
@@ -223,7 +276,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="rounded-full h-12 w-12 p-0 hover:bg-gray-100"
+                className="rounded-full h-12 w-12 p-0 hover:bg-gray-100 touch-manipulation no-highlight"
                 onClick={handleSkipBack}
                 disabled={!hasTrack || isLoading}
               >
@@ -233,7 +286,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
               <Button
                 onClick={togglePlayPause}
                 size="lg"
-                className="rounded-full h-16 w-16 p-0 bg-gray-900 hover:bg-gray-800 shadow-lg"
+                className="rounded-full h-16 w-16 p-0 bg-gray-900 hover:bg-gray-800 shadow-lg touch-manipulation no-highlight"
                 disabled={!hasTrack || isLoading}
               >
                 {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
@@ -242,7 +295,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="rounded-full h-12 w-12 p-0 hover:bg-gray-100"
+                className="rounded-full h-12 w-12 p-0 hover:bg-gray-100 touch-manipulation no-highlight"
                 onClick={handleSkipForward}
                 disabled={!hasTrack || isLoading}
               >
@@ -258,7 +311,7 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowVolumeControl(!showVolumeControl)}
-                className="rounded-full h-8 w-8 p-0"
+                className="rounded-full h-8 w-8 p-0 touch-manipulation no-highlight"
               >
                 <Volume2 className="w-4 h-4" />
               </Button>
@@ -278,7 +331,13 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
             </div>
           </div>
 
-          <audio ref={audioRef} preload="metadata" />
+          <audio 
+            ref={audioRef} 
+            preload="metadata" 
+            playsInline 
+            crossOrigin="anonymous"
+            style={{ display: 'none' }}
+          />
         </CardContent>
       </Card>
     </div>

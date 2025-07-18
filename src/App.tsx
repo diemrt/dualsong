@@ -1,5 +1,6 @@
 import TrackPlayer from './components/TrackPlayer';
 import { Music } from 'lucide-react';
+import './ios-fixes.css';
 
 function App() {
   return (
