@@ -61,6 +61,17 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
     setIsPlaying(!isPlaying);
   };
 
+  const handleSkipBack = () => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = 0;
+    setCurrentTime(0);
+  };
+
+  const handleSkipForward = () => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = Math.min(audioRef.current.currentTime + 10, duration);
+  };
+
   /*const handleSeek = (value: number[]) => {
     if (audioRef.current) {
       audioRef.current.currentTime = value[0];
@@ -251,6 +262,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
                 variant="ghost" 
                 size="sm" 
                 className="rounded-full h-12 w-12 p-0 hover:bg-gray-100"
+                onClick={handleSkipBack}
+                disabled={!trackUrl || isLoading}
               >
                 <SkipBack className="w-5 h-5" />
               </Button>
@@ -268,6 +281,8 @@ const TrackPlayer: React.FC<TrackPlayerProps> = ({ trackNumber, trackColor }) =>
                 variant="ghost" 
                 size="sm" 
                 className="rounded-full h-12 w-12 p-0 hover:bg-gray-100"
+                onClick={handleSkipForward}
+                disabled={!trackUrl || isLoading}
               >
                 <SkipForward className="w-5 h-5" />
               </Button>
